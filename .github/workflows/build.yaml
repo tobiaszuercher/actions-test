@@ -3,24 +3,23 @@ name: Build and Push Docker Image
 on: push
 
 jobs:
-  find-dockerfiles:
-    runs-on: ubuntu-latest
-    outputs:
-      dockerfiles: ${{ steps.set-dockerfiles.outputs.dockerfiles }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Find Dockerfiles
-        id: set-dockerfiles
-        run: |
-          echo "::set-output name=dockerfiles::$(find . -name Dockerfile)"
+  #   find-dockerfiles:
+  #     runs-on: ubuntu-latest
+  #     outputs:
+  #       dockerfiles: ${{ steps.set-dockerfiles.outputs.dockerfiles }}
+  #     steps:
+  #       - name: Checkout code
+  #         uses: actions/checkout@v3
+  #       - name: Find Dockerfiles
+  #         id: set-dockerfiles
+  #         run: |
+  #           echo "::set-output name=dockerfiles::$(find . -name Dockerfile)"
 
   build:
-    needs: find-dockerfiles
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dockerfile: ${{fromJson(needs.find-dockerfiles.outputs.dockerfiles)}}
+        service: ["foo", "bar"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,10 +35,6 @@ jobs:
         uses: gittools/actions/gitversion/execute@v0
         with:
           useConfigFile: false # todo: change to true
-      - name: Find Dockerfiles
-        id: set-dockerfiles
-        run: |
-          echo "::set-output name=dockerfiles::$(find . -name Dockerfile)"
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to registry
@@ -49,11 +44,11 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_TOKEN }}
       - name: log
-        run: echo ${{ matrix.dockerfile }}
+        run: echo ${{ matrix.service }}
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          context: ./foo
+          context: ./${{ matrix.service }}
           push: true
-          tags: ${{ vars.REGISTRY_URL }}/platform/platform-ci/foo:${{ steps.gitversion.outputs.semVer }}
+          tags: ${{ vars.REGISTRY_URL }}/platform/platform-ci/${{ matrix.service }}:${{ steps.gitversion.outputs.semVer }}
           platforms: linux/arm64,linux/amd64
