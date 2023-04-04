@@ -31,6 +31,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
-          file: foo/Dockerfile
+          context: ./foo
           push: false
           tags: foo/app:${{ steps.gitversion.outputs.semVer }}
+          platforms: linux/arm64,linux/amd64
