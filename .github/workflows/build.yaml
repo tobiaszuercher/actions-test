@@ -33,5 +33,5 @@ jobs:
         with:
           context: ./foo
           push: true
-          tags: foo/app:${{ steps.gitversion.outputs.semVer }}
+          tags: platform/platform-ci/foo:${{ steps.gitversion.outputs.semVer }}
           platforms: linux/arm64,linux/amd64
