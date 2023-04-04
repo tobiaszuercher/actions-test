@@ -18,4 +18,4 @@ jobs:
       - name: Version
         uses: gittools/actions/gitversion/execute@v0
         with:
-          useConfigFile: true
+          useConfigFile: false # todo: change to true
